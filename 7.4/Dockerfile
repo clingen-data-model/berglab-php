@@ -22,13 +22,16 @@ RUN apt-get -yqq update \
         less \
         libzip-dev \
         zlib1g-dev \
+        vim \
     && echo "if [ -f /etc/bash_completion ]; then . /etc/bash_completion fi" >> ~/.bash_profile
 
 # Apache
 RUN chgrp -R 0 /var/log/apache2 \
     && chmod -R g+w /var/log/apache2 \
     && a2enmod rewrite negotiation \
-    && ln -s /etc/apache2/mods-available/headers.load /etc/apache2/mods-enabled/headers.load
+    && ln -s /etc/apache2/mods-available/headers.load /etc/apache2/mods-enabled/headers.load \
+    && cp /etc/apache2/mods-available/http2.* /etc/apache2/mods-enabled/
+    # && cp /etc/apache2/mods-available/ssl.* /etc/apache2/mods-enabled
 
 # Php
 RUN docker-php-ext-install pdo_mysql \
