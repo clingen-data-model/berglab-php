@@ -30,6 +30,7 @@ RUN apt-get -yqq update \
 RUN chgrp -R 0 /var/log/apache2 \
     && chmod -R g+w /var/log/apache2 \
     && a2enmod rewrite negotiation \
+    # && a2enmod ssl \
     && ln -s /etc/apache2/mods-available/headers.load /etc/apache2/mods-enabled/headers.load \
     && cp /etc/apache2/mods-available/http2.* /etc/apache2/mods-enabled/
 
