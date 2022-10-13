@@ -36,10 +36,19 @@ RUN docker-php-ext-install pdo_mysql \
         zip \
         pcntl \
     && pecl install redis \
+    # Install kafka library
+    && apt-get install -yqq librdkafka-dev \
+    && pecl install rdkafka-5.0.0 \
+    && apt-get install -y --no-install-recommends openssl \
+    && sed -i 's,^\(MinProtocol[ ]*=\).*,\1'TLSv1.0',g' /etc/ssl/openssl.cnf \
+    && sed -i 's,^\(CipherString[ ]*=\).*,\1'DEFAULT@SECLEVEL=1',g' /etc/ssl/openssl.cnf\
+    && rm -rf /var/lib/apt/lists/* \
+    #Install composer
     && chmod +x /usr/local/bin/composer-installer \ 
     && composer-installer \
     && mv composer.phar /usr/local/bin/composer \
     && composer --version
+
     
 COPY .docker/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY .docker/apache/conf.d/ports.conf /etc/apache2/ports.conf
