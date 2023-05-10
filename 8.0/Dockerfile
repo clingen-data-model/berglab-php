@@ -11,13 +11,15 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 # Debian
 RUN apt-get -yqq update \
-    && apt-get -yqq install --no-install-recommends unzip \
+    && apt-get -yqq install --no-install-recommends \
+        openssl \
+        unzip \
         bash-completion \
         less \
-        libzip-dev \
-        zlib1g-dev \
         vim \
         rsync \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
     && echo "if [ -f /etc/bash_completion ]; then . /etc/bash_completion fi" >> ~/.bash_profile
 
 # Apache
@@ -31,17 +33,24 @@ RUN chgrp -R 0 /var/log/apache2 \
 COPY composer-installer.sh /usr/local/bin/composer-installer
 
 # Php
-RUN docker-php-ext-install pdo_mysql \
+RUN apt-get -yqq update \
+    && apt-get -yqq install --no-install-recommends \
+        librdkafka-dev \
+        libzip-dev \
+        zlib1g-dev \
+    && docker-php-ext-install pdo_mysql \
         opcache \
         zip \
         pcntl \
     && pecl install redis \
     # Install kafka library
-    && apt-get install -yqq librdkafka-dev \
     && pecl install rdkafka-5.0.0 \
-    && apt-get install -y --no-install-recommends openssl \
     && sed -i 's,^\(MinProtocol[ ]*=\).*,\1'TLSv1.0',g' /etc/ssl/openssl.cnf \
     && sed -i 's,^\(CipherString[ ]*=\).*,\1'DEFAULT@SECLEVEL=1',g' /etc/ssl/openssl.cnf\
+    && apt-get purge -y \
+        librdkafka-dev \
+        libzip-dev \
+        zlib1g-dev \
     && rm -rf /var/lib/apt/lists/* \
     #Install composer
     && chmod +x /usr/local/bin/composer-installer \ 
