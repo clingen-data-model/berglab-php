@@ -12,6 +12,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends lsb-release ca-certificates curl ca-certificates zip unzip git \
+       nginx openssh-client \
     && curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg \
     && sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' \
     && apt-get update \
@@ -22,6 +23,7 @@ RUN apt-get update \
        php8.0-xml php8.0-zip \
        php8.0-readline php8.0-pcov \
        php8.0-redis php8.0-xdebug \
+       php8.0-fpm \
     && update-alternatives --set php /usr/bin/php8.0 \
     && curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
     && apt-get -y autoremove \
@@ -30,5 +32,8 @@ RUN apt-get update \
 
 
 EXPOSE 8000
+
+USER www-data:0
+
 
 ENTRYPOINT ["bash"]
